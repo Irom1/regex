@@ -54,10 +54,12 @@ public class RegEx {
     private boolean bracketMatch(String expression, String test) {
         // Matches a single character contained within the brackets. Ex: [abc] matches
         // a, b, or c.
-        String possibleLetters = expression.substring(expression.indexOf("[") + 1, expression.indexOf("]"));
-        if (test.length() == (expression.substring(0, expression.indexOf("["))
-                + expression.substring(expression.indexOf("]"))).length()) {
-            if (possibleLetters.indexOf(test.substring(expression.indexOf("["), expression.indexOf("[") + 1)) != -1) {
+        int start = expression.indexOf("[");
+        int end = expression.indexOf("]");
+        String possibleLetters = expression.substring(start + 1, end);
+        if (test.length() == (expression.substring(0, start)
+                + expression.substring(end)).length()) {
+            if (possibleLetters.indexOf(test.substring(start, start + 1)) != -1) {
                 return true;
             }
         }
@@ -68,13 +70,19 @@ public class RegEx {
         // Matches any single character not contained within the brackets. [^abc]
         // matches any character other than a, b, or c.
         String possibleLetters = expression.substring(expression.indexOf("[") + 1, expression.indexOf("]"));
-        if (test.length() == (expression.substring(0, expression.indexOf("["))
-                + expression.substring(expression.indexOf("]"))).length()) {
-            if (!(possibleLetters
-                    .indexOf(test.substring(expression.indexOf("["), expression.indexOf("[") + 1)) != -1)) {
-                return true;
+        // find substring before bracket
+        String beforeBracket = expression.substring(0, expression.indexOf("["));
+        // find substring after bracket
+        String afterBracket = expression.substring(expression.indexOf("]") + 1);
+        // 
+        int correctLength = beforeBracket.length() + afterBracket.length() + 1;
+        if (test.length() == correctLength) {
+            if (test.substring(0, beforeBracket.length()).equals(beforeBracket) && test.substring(test.length() - afterBracket.length()).equals(afterBracket)) {
+                if (!(possibleLetters.indexOf(test.substring(beforeBracket.length(), beforeBracket.length() + 1)) != -1)) {
+                    return true;
+                }
             }
-        }
+        }        
         return false;
     }
 
@@ -95,7 +103,7 @@ public class RegEx {
         } else {
             return false;
         }
-        if (!stuffAfterStar.equals(test.substring(test.length() - stuffAfterStar.length()))) {
+        if (test.length() - stuffAfterStar.length() < 0 || !stuffAfterStar.equals(test.substring(test.length() - stuffAfterStar.length()))) {
             return false;
         }
         return true;
